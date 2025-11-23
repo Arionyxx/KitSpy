@@ -1,5 +1,4 @@
-use super::loader::{load_pe, PeArtifact};
-use anyhow::Result;
+use super::loader::load_pe;
 use std::fs;
 use std::path::PathBuf;
 
@@ -9,40 +8,50 @@ fn create_dummy_pe() -> Vec<u8> {
     data[0] = 0x4D;
     data[1] = 0x5A;
     
-    // e_lfanew (offset to PE header) at 0x3C -> 0x40
-    data[0x3C] = 0x40;
+    // e_lfanew (offset to PE header) at 0x3C -> 0x80
+    data[0x3C] = 0x80;
     
-    // PE signature at 0x40
-    data[0x40] = 0x50;
-    data[0x41] = 0x45;
-    data[0x42] = 0x00;
-    data[0x43] = 0x00;
+    // PE signature at 0x80
+    let pe_header_start = 0x80;
+    data[pe_header_start] = 0x50;
+    data[pe_header_start + 1] = 0x45;
+    data[pe_header_start + 2] = 0x00;
+    data[pe_header_start + 3] = 0x00;
     
-    // COFF Header at 0x44
+    // COFF Header at pe_header_start + 4
     // Machine: 0x14C (i386)
-    data[0x44] = 0x4C;
-    data[0x45] = 0x01;
+    data[pe_header_start + 4] = 0x4C;
+    data[pe_header_start + 5] = 0x01;
     
     // NumberOfSections: 1
-    data[0x46] = 0x01;
-    data[0x47] = 0x00;
+    data[pe_header_start + 6] = 0x01;
+    data[pe_header_start + 7] = 0x00;
     
     // SizeOfOptionalHeader: 0xE0 (224 bytes)
-    data[0x54] = 0xE0;
-    data[0x55] = 0x00;
+    data[pe_header_start + 20] = 0xE0;
+    data[pe_header_start + 21] = 0x00;
     
     // Characteristics: 0x02 (Executable)
-    data[0x56] = 0x02;
-    data[0x57] = 0x00;
+    data[pe_header_start + 22] = 0x02;
+    data[pe_header_start + 23] = 0x00;
     
-    // Optional Header at 0x58 (follows COFF header which is 20 bytes)
+    // Optional Header at pe_header_start + 24 (follows COFF header which is 20 bytes)
     // Magic: 0x10B (PE32)
-    data[0x58] = 0x0B;
-    data[0x59] = 0x01;
+    data[pe_header_start + 24] = 0x0B;
+    data[pe_header_start + 25] = 0x01;
     
     // Section Table starts after Optional Header
-    // 0x58 + 0xE0 = 0x138
-    let section_offset = 0x138;
+    // 0x80 + 4 + 20 + 224 = 0x164
+    // (pe_header_start + 4 (sig) + 20 (coff) + 224 (opt))
+    // 0x80 + 248 = 0x178 ?
+    // Wait.
+    // PE Sig: 4 bytes
+    // COFF Header: 20 bytes
+    // Optional Header: 224 bytes (SizeOfOptionalHeader)
+    // Total = 248 bytes.
+    // Start of Section Table = pe_header_start + 248 = 0x80 + 0xF8 = 0x178.
+    
+    let section_offset = pe_header_start + 4 + 20 + 224;
     
     // Name: ".text"
     let name = b".text\0\0\0";
