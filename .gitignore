@@ -1,2 +1,6 @@
 /target
 /tests/fixtures
+/AppDir
+/dist
+/linuxdeploy-x86_64.AppImage
+*.AppImage

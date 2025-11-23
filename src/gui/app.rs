@@ -127,7 +127,7 @@ impl Application for App {
         Command::none()
     }
 
-    fn view(&self) -> Element<Message> {
+    fn view(&self) -> Element<'_, Message> {
         let toolbar = row![
             button("Open PE").on_press(Message::OpenFile)
         ]
@@ -191,7 +191,7 @@ impl Application for App {
     }
 }
 
-fn view_tree(data: &AssemblyData) -> Element<Message> {
+fn view_tree(data: &AssemblyData) -> Element<'_, Message> {
     let mut col = Column::new().spacing(5);
     
     col = col.push(text(&data.name).size(16).style(Color::from_rgb8(0xD4, 0xD4, 0xD4)));
@@ -231,26 +231,26 @@ fn view_tree(data: &AssemblyData) -> Element<Message> {
     col.into()
 }
 
-fn sidebar_style(theme: &Theme) -> container::Appearance {
+fn sidebar_style(_theme: &Theme) -> container::Appearance {
     container::Appearance {
         background: Some(Color::from_rgb8(0x25, 0x25, 0x26).into()),
         text_color: Some(Color::from_rgb8(0xD4, 0xD4, 0xD4)),
-        ..theme.extended_palette().background.base.container(theme)
+        ..Default::default()
     }
 }
 
-fn viewer_style(theme: &Theme) -> container::Appearance {
+fn viewer_style(_theme: &Theme) -> container::Appearance {
     container::Appearance {
         background: Some(Color::from_rgb8(0x1E, 0x1E, 0x1E).into()),
         text_color: Some(Color::from_rgb8(0xD4, 0xD4, 0xD4)),
-        ..theme.extended_palette().background.base.container(theme)
+        ..Default::default()
     }
 }
 
-fn app_style(theme: &Theme) -> container::Appearance {
+fn app_style(_theme: &Theme) -> container::Appearance {
      container::Appearance {
         background: Some(Color::from_rgb8(0x1E, 0x1E, 0x1E).into()),
-        ..theme.extended_palette().background.base.container(theme)
+        ..Default::default()
     }
 }
 
